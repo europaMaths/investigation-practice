@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IB MYP Sequence Investigation Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['], ['\\(', '\\)']],
+                displayMath: [['$', '$'], ['\\[', '\\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-section h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .checkbox-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .checkbox-item.checked {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .question-section, .solution-section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .question-section {
+            background: #f8f9ff;
+        }
+
+        .solution-section {
+            background: #f0fff4;
+            border-left-color: #38a169;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        table {
+            width: 100%;
+            max-width: 300px;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #4a5568;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .math {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 1.1em;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .print-section {
+            page-break-before: always;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .controls, .header {
+                display: none;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .print-question-only .solution-section {
+                display: none;
+            }
+            
+            .print-solution-only .question-section {
+                display: none;
+            }
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .instructions h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+            color: #856404;
+        }
+
+        .no-selection {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>IB MYP Sequence Investigation Generator</h1>
+            <p>Practice tool for eAssessment sequence investigations</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-section">
+                <h3>Select Sequence Types:</h3>
+                <div class="checkbox-grid">
+                    <div class="checkbox-item" onclick="toggleCheckbox('linear')">
+                        <input type="checkbox" id="linear" checked>
+                        <label for="linear">Linear (ax + b)</label>
+                    </div>
+                    <div class="checkbox-item" onclick="toggleCheckbox('hiddenLinear')">
+                        <input type="checkbox" id="hiddenLinear">
+                        <label for="hiddenLinear">Hidden Linear (√(ax + b), 2^(ax+b))</label>
+                    </div>
+                    <div class="checkbox-item" onclick="toggleCheckbox('quadratic')">
+                        <input type="checkbox" id="quadratic">
+                        <label for="quadratic">Quadratic (ax² + bx + c)</label>
+                    </div>
+                    <div class="checkbox-item" onclick="toggleCheckbox('hiddenQuadratic')">
+                        <input type="checkbox" id="hiddenQuadratic">
+                        <label for="hiddenQuadratic">Hidden Quadratic (ax² + c)</label>
+                    </div>
+                    <div class="checkbox-item" onclick="toggleCheckbox('geometric')">
+                        <input type="checkbox" id="geometric">
+                        <label for="geometric">Geometric (a × b^(x-1))</label>
+                    </div>
+                    <div class="checkbox-item" onclick="toggleCheckbox('hiddenGeometric')">
+                        <input type="checkbox" id="hiddenGeometric">
+                        <label for="hiddenGeometric">Hidden Geometric</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="generateQuestion()">Generate New Question</button>
+                <button class="btn-secondary" onclick="showSolution()">Show Solution</button>
+                <button class="btn-secondary" onclick="printQuestion()">Print Question Only</button>
+                <button class="btn-secondary" onclick="printSolution()">Print Solution Only</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="noSelection" class="no-selection">
+                Please select at least one sequence type and click "Generate New Question" to begin.
+            </div>
+
+            <div id="questionSection" class="question-section hidden">
+                <div class="section-title">Question</div>
+                <div class="instructions">
+                    <h4>Investigation Instructions:</h4>
+                    <ul>
+                        <li>Predict more values for \(t\) and record them in the table</li>
+                        <li>Describe in words any patterns you see</li>
+                        <li>Write down the general rule for \(t\) in terms of \(n\)</li>
+                        <li>Test your general rule for \(t\)</li>
+                        <li>Verify your general rule for \(t\)</li>
+                        <li>Ensure that you communicate all your working appropriately</li>
+                    </ul>
+                </div>
+                <p>The table below shows the sequence for \(t\):</p>
+                <div id="questionTable"></div>
+            </div>
+
+            <div id="solutionSection" class="solution-section hidden">
+                <div class="section-title">Model Answer</div>
+                <div id="solutionContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSequence = null;
+        let solutionVisible = false;
+
+        function toggleCheckbox(id) {
+            const checkbox = document.getElementById(id);
+            const item = checkbox.parentElement;
+            
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                item.classList.add('checked');
+            } else {
+                item.classList.remove('checked');
+            }
+        }
+
+        function getSelectedTypes() {
+            const types = ['linear', 'hiddenLinear', 'quadratic', 'hiddenQuadratic', 'geometric', 'hiddenGeometric'];
+            return types.filter(type => document.getElementById(type).checked);
+        }
+
+function generateLinear() {
+    const a = Math.floor(Math.random() * 8) + 2; // 2-9
+    const b = Math.floor(Math.random() * 51) - 10; // -10 to 40
+    
+    // Randomly decide if the sequence should increase or decrease
+    const isIncreasing = Math.random() < 0.5; 
+    const finalA = isIncreasing ? a : -a; // 'a' can be negative for decreasing sequence
+
+    return {
+        type: 'Linear',
+        formula: `${finalA}n ${b >= 0 ? '+' : ''} ${b}`,
+        calculate: (n) => finalA * n + b,
+        pattern: `${isIncreasing ? 'increases' : 'decreases'} by ${Math.abs(finalA)} each time`,
+        rule: `t = ${finalA}n ${b >= 0 ? '+' : ''} ${b}`,
+        testCalculation: (n) => `${finalA}(${n}) ${b >= 0 ? '+' : ''} ${b} = ${finalA * n + b}`,
+        isHidden: false
+    };
+}
+
+        function generateHiddenLinear() {
+            // Options for hidden linear types: square root, power, fraction, product of two linear terms, linear term multiplied by pi
+            const types = ['sqrt', 'power', 'fraction', 'product', 'pi_product'];
+            // Randomly select one of the types
+            const type = types[Math.floor(Math.random() * types.length)];
+
+            // Generate random coefficients for the linear part (an + b)
+            // 'a' coefficient: random integer from 2 to 9
+            const a = Math.floor(Math.random() * 9) + 2;
+            // 'b' constant: random integer from -5 to 25
+            let b = Math.floor(Math.random() * 31) - 5;
+
+            switch (type) {
+                case 'sqrt':
+                    // Hidden Linear (Square Root) type
+                    // Ensure a*n + b is always positive for n >= 1
+                    let bForSqrt = Math.floor(Math.random() * 11) - 5;
+                    while (a * 1 + bForSqrt <= 0) { // Check for n=1
+                        bForSqrt = Math.floor(Math.random() * 11) - 5;
+                    }
+                    return {
+                        type: 'Hidden Linear (Square Root)',
+                        formula: `\\sqrt{${a}n ${bForSqrt >= 0 ? '+' : ''} ${bForSqrt}}`,
+                        calculate: (n) => `\\sqrt{${a * n + bForSqrt}}`,
+                        calculateNumerical: (n) => Math.sqrt(a * n + bForSqrt),
+                        pattern: `the number inside the square root increases by ${a}`,
+                        rule: `t = \\sqrt{${a}n ${bForSqrt >= 0 ? '+' : ''} ${bForSqrt}}`,
+                        testCalculation: (n) => `\\sqrt{${a}(${n}) ${bForSqrt >= 0 ? '+' : ''} ${bForSqrt}} = \\sqrt{${a * n + bForSqrt}}`,
+                        isHidden: true
+                    };
+                case 'power':
+                    // Hidden Linear (Exponential) type
+                    const base = Math.floor(Math.random() * 2) + 2; // Base 2 or 3
+                    return {
+                        type: 'Hidden Linear (Exponential)',
+                        formula: `${base}^(${a}n ${b >= 0 ? '+' : ''} ${b})`,
+                        calculate: (n) => `${base}^{${a * n + b}}`,
+                        calculateNumerical: (n) => Math.pow(base, a * n + b),
+                        pattern: `the number in the exponent increases by ${a}`,
+                        rule: `t = ${base}^{${a}n ${b >= 0 ? '+' : ''} ${b}}`,
+                        testCalculation: (n) => `${base}^{${a}(${n}) ${b >= 0 ? '+' : ''} ${b}} = ${base}^{${a * n + b}}`,
+                        isHidden: true
+                    };
+                case 'fraction':
+                    const c = Math.floor(Math.random() * 8) + 2;
+                    const d = Math.floor(Math.random() * 25) + 1;
+                    return {
+                        type: 'Hidden Linear (Fraction)',
+                        formula: `(${a}n ${b >= 0 ? '+' : ''} ${b})/(${c}n + ${d})`,
+                        calculate: (n) => `\\frac{${a * n + b}}{${c * n + d}}`,
+                        calculateNumerical: (n) => (a * n + b) / (c * n + d),
+                        pattern: `the numerator increases by ${a} and the denominator increases by ${c}`,
+                        rule: `t = \\frac{${a}n ${b >= 0 ? '+' : ''} ${b}}{${c}n + ${d}}`,
+                        testCalculation: (n) => `\\frac{${a}(${n}) ${b >= 0 ? '+' : ''} ${b}}{${c}(${n}) + ${d}} = \\frac{${a * n + b}}{${c * n + d}}`,
+                        isHidden: true
+                    };
+                case 'product':
+                    // Hidden Linear (Product of two linear terms) type: (ax+b)*(cx+d)
+                    const c_prod = Math.floor(Math.random() * 5) + 1; // c coefficient for second term
+                    const d_prod = Math.floor(Math.random() * 31) - 5; // d constant for second term
+                    return {
+                        type: 'Hidden Linear (Product)',
+                        formula: `(${a}n ${b >= 0 ? '+' : ''} ${b})(${c_prod}n ${d_prod >= 0 ? '+' : ''} ${d_prod})`,
+                        calculate: (n) => `${a * n + b}\\times${c_prod * n + d_prod}=` + (a * n + b) * (c_prod * n + d_prod),
+                        calculateNumerical: (n) => (a * n + b) * (c_prod * n + d_prod),
+                        pattern: `the terms are generated by multiplying two linear patterns: the first number increases by ${a} and the second number increases by ${c_prod}`,
+                        rule: `t = (${a}n ${b >= 0 ? '+' : ''} ${b})(${c_prod}n ${d_prod >= 0 ? '+' : ''} ${d_prod})`,
+                        testCalculation: (n) => `(${a}(${n}) ${b >= 0 ? '+' : ''} ${b})(${c_prod}(${n}) ${d_prod >= 0 ? '+' : ''} ${d_prod}) = (${a * n + b})(${c_prod * n + d_prod})`,
+                        isHidden: true
+                    };
+                case 'pi_product':
+                    // Hidden Linear (Linear term multiplied by pi) type: (ax+b)*pi
+                    return {
+                        type: 'Hidden Linear (Pi Product)',
+                        formula: `(${a}n ${b >= 0 ? '+' : ''} ${b})\\pi`,
+                        calculate: (n) => `${a * n + b}\\pi`,
+                        calculateNumerical: (n) => (a * n + b) * Math.PI,
+                        pattern: `the coefficient of \\(\\pi\\) increases by ${a}`,
+                        rule: `t = (${a}n ${b >= 0 ? '+' : ''} ${b})\\pi`,
+                        testCalculation: (n) => `(${a}(${n}) ${b >= 0 ? '+' : ''} ${b})\\pi = (${a * n + b})\\pi`,
+                        isHidden: true
+                    };
+            }
+        }
+
+        function generateQuadratic() {
+            const a = Math.floor(Math.random() * 4) + 1;
+            const b = Math.floor(Math.random() * 11) - 5;
+            const c = Math.floor(Math.random() * 11) - 5;
+            
+            return {
+                type: 'Quadratic',
+                formula: `${a}n² ${b >= 0 ? '+' : ''} ${b}n ${c >= 0 ? '+' : ''} ${c}`,
+                calculate: (n) => a * n * n + b * n + c,
+                pattern: `second differences are constant (${2 * a})`,
+                rule: `t = ${a}n^2 ${b >= 0 ? '+' : ''} ${b}n ${c >= 0 ? '+' : ''} ${c}`,
+                testCalculation: (n) => `${a}(${n})^2 ${b >= 0 ? '+' : ''} ${b}(${n}) ${c >= 0 ? '+' : ''} ${c} = ${a * n * n + b * n + c}`,
+                isHidden: false
+            };
+        }
+
+        function generateHiddenQuadratic() {
+            // Options for hidden quadratic types: square root, power, fraction
+            const types = ['sqrt', 'power', 'fraction'];
+            // Randomly select one of the types
+            const type = types[Math.floor(Math.random() * types.length)];
+            
+            // Generate random coefficients for the quadratic part (an^2 + c)
+            // 'a' coefficient: random integer from 1 to 3
+            const a = Math.floor(Math.random() * 3) + 1;
+            // 'c' constant: This 'c' will be used as a default for 'power' and 'fraction' cases.
+            // For the 'sqrt' case, a specific 'cForSqrt' will be generated to ensure validity.
+            let c = Math.floor(Math.random() * 11) - 5; // Initial range -5 to 5
+            
+            // Calculate the second difference for the quadratic part (an^2 + c).
+            // For a quadratic an^2 + bn + c, the second difference is 2a.
+            // In our case, the 'b' term is 0, so the second difference is 2 * 'a'.
+            const secondDifference = 2 * a;
+
+            switch(type) {
+                case 'sqrt':
+                    // Hidden Quadratic (Square Root) type
+                    // For square root, ensure the expression inside the root (a*n*n + c) is always positive for n >= 1.
+                    // The smallest value this expression can take is when n=1, which is (a * 1 * 1 + c) = a + c.
+                    // To prevent issues, we need a + c > 0 (or ideally, >= 1 to avoid Math.sqrt(0) which is 0 but might be considered trivial).
+                    // We will regenerate 'c' until 'a + c' is positive.
+                    let cForSqrt = Math.floor(Math.random() * 11) - 5; // Start with original range
+                    while (a + cForSqrt <= 0) { // Keep regenerating if a + c is not positive for n=1
+                        cForSqrt = Math.floor(Math.random() * 11) - 5;
+                    }
+                    
+                    return {
+                        type: 'Hidden Quadratic (Square Root)',
+                        // LaTeX formula for display
+                        formula: `\\sqrt{${a}n^2 ${cForSqrt >= 0 ? '+' : ''} ${cForSqrt}}`,
+                        // Function to calculate the term, returning a MathJax-formatted string
+                        calculate: (n) => `\\sqrt{${a * n * n + cForSqrt}}`,
+                        // Function to calculate the numerical value
+                        calculateNumerical: (n) => Math.sqrt(a * n * n + cForSqrt),
+                        // Description of the pattern, now including the second difference
+                        pattern: `the number inside the square root follows a quadratic pattern with second difference of ${secondDifference}`,
+                        // LaTeX rule for the general term
+                        rule: `t = \\sqrt{${a}n^2 ${cForSqrt >= 0 ? '+' : ''} ${cForSqrt}}`,
+                        // LaTeX test calculation for a given 'n'
+                        testCalculation: (n) => `\\sqrt{${a}(${n})^2 ${cForSqrt >= 0 ? '+' : ''} ${cForSqrt}} = \\sqrt{${a * n * n + cForSqrt}}`,
+                        isHidden: true
+                    };
+                case 'power':
+                    // Hidden Quadratic (Exponential) type
+                    // Random base for the exponent (2 or 3)
+                    const base = Math.floor(Math.random() * 2) + 2; 
+                    return {
+                        type: 'Hidden Quadratic (Exponential)',
+                        // LaTeX formula for display (uses the 'c' from the outer scope)
+                        formula: `${base}^(${a}n^2 ${c >= 0 ? '+' : ''} ${c})`,
+                        // Function to calculate the term, returning a MathJax-formatted string
+                        calculate: (n) => `${base}^{${a * n * n + c}}`,
+                        // Function to calculate the numerical value
+                        calculateNumerical: (n) => Math.pow(base, a * n * n + c),
+                        // Description of the pattern, now including the second difference
+                        pattern: `the number in the exponent follows a quadratic pattern with second difference of ${secondDifference}`,
+                        // LaTeX rule for the general term
+                        rule: `t = ${base}^{${a}n^2 ${c >= 0 ? '+' : ''} ${c}}`,
+                        // LaTeX test calculation for a given 'n'
+                        testCalculation: (n) => `${base}^{${a}(${n})^2 ${c >= 0 ? '+' : ''} ${c}} = ${base}^{${a * n * n + c}}`,
+                        isHidden: true
+                    };
+                case 'fraction':
+                    // Hidden Quadratic (Fraction) type
+                    // Additional coefficients for the denominator
+                    // 'd' coefficient for denominator's linear term (dn + e)
+                    const d = Math.floor(Math.random() * 3) + 1;
+                    // 'e' constant for denominator
+                    let e = Math.floor(Math.random() * 11) - 5; // Initial range -5 to 5
+                    // Ensure the denominator is not zero for small 'n' values (up to n=4, typically displayed in question)
+                    while (d * 1 + e === 0 || d * 2 + e === 0 || d * 3 + e === 0 || d * 4 + e === 0) {
+                        e = Math.floor(Math.random() * 11) - 5;
+                    }
+                    return {
+                        type: 'Hidden Quadratic (Fraction)',
+                        // LaTeX formula for display. Numerator is quadratic (uses outer 'c'), denominator is linear.
+                        formula: `\\frac{${a}n^2 ${c >= 0 ? '+' : ''} ${c}}{${d}n ${e >= 0 ? '+' : ''} ${e}}`,
+                        // Function to calculate the term, returning a MathJax-formatted string
+                        calculate: (n) => `\\frac{${a * n * n + c}}{${d * n + e}}`,
+                        // Function to calculate the numerical value
+                        calculateNumerical: (n) => (a * n * n + c) / (d * n + e),
+                        // Description of the pattern, now including the second difference
+                        pattern: `the numerator follows a quadratic pattern with second difference of ${secondDifference} and the denominator follows a linear pattern (${d}n ${e >= 0 ? '+' : ''} ${e})`,
+                        // LaTeX rule for the general term
+                        rule: `t = \\frac{${a}n^2 ${c >= 0 ? '+' : ''} ${c}}{${d}n ${e >= 0 ? '+' : ''} ${e}}`,
+                        // LaTeX test calculation for a given 'n'
+                        testCalculation: (n) => `\\frac{${a}(${n})^2 ${c >= 0 ? '+' : ''} ${c}}{${d}(${n}) ${e >= 0 ? '+' : ''} ${e}} = \\frac{${a * n * n + c}}{${d * n + e}}`,
+                        isHidden: true
+                    };
+            }
+        }
+
+        function generateGeometric() {
+            const a = Math.floor(Math.random() * 5) + 2;
+            const r = Math.floor(Math.random() * 4) + 2;
+            
+            return {
+                type: 'Geometric',
+                formula: `${a} × ${r}^(n-1)`,
+                calculate: (n) => a * Math.pow(r, n - 1),
+                pattern: `multiplied by ${r} each time (geometric sequence)`,
+                rule: `t = ${a} \\times ${r}^{n-1}`,
+                testCalculation: (n) => `${a} \\times ${r}^{(${n})-1} = ${a} \\times ${r}^{${n-1}} = ${a * Math.pow(r, n - 1)}`,
+                isHidden: false
+            };
+        }
+
+        function generateHiddenGeometric() {
+            // Options for hidden geometric types: square root, power (exponent), fraction
+            const types = ['sqrt', 'power', 'fraction'];
+            // Randomly select one of the types
+            const type = types[Math.floor(Math.random() * types.length)];
+
+            // 'a' is the first term of the underlying geometric progression (a * r^(n-1))
+            const a = Math.floor(Math.random() * 8) + 2; // 'a' from 2 to 9
+
+            // 'r' is the common ratio of the underlying geometric progression
+            let r;
+            do {
+                // Generate a random 'r' that is an integer between 2 and 4 (inclusive)
+                // This ensures positive and reasonable growth for the geometric part.
+                r = Math.floor(Math.random() * 3) + 2;
+            } while (r <= 1); // Ensure r is greater than 1 to avoid constant sequences
+
+            switch (type) {
+                case 'sqrt':
+                    // Hidden Geometric (Square Root) type
+                    return {
+                        type: 'Hidden Geometric (Square Root)',
+                        // The formula remains the general algebraic form
+                        formula: `\\sqrt{${a} \\cdot ${r}^{n-1}}`,
+                        // Calculate and return the numerical value inside the square root, formatted for MathJax.
+                        // Since 'a' and 'r' are integers, and n-1 is integer, a * r^(n-1) will be a whole number.
+                        calculate: (n) => `\\sqrt{${a * Math.pow(r, n - 1)}}`,
+                        // This remains the raw numerical value for calculations (Math.sqrt is fine with whole numbers)
+                        calculateNumerical: (n) => Math.sqrt(a * Math.pow(r, n - 1)),
+                        // Updated pattern description to be more specific
+                        pattern: `the number inside the square root follows a geometric pattern with common ratio ${r}`,
+                        // The rule remains the general algebraic form
+                        rule: `t = \\sqrt{${a} \\cdot ${r}^{n-1}}`,
+                        // Test calculation now shows the substitution and then the numerical result inside the root.
+                        // Removed toFixed(3) as requested for whole numbers.
+                        testCalculation: (n) => `\\sqrt{${a} \\times ${r}^{(${n})-1}} = \\sqrt{${a * Math.pow(r, n - 1)}}`,
+                        isHidden: true
+                    };
+                case 'power':
+                    // Hidden Geometric (Exponential) type: base^(geometric_sequence)
+                    // Base for the exponent, e.g., 2 or 3
+                    const base = Math.floor(Math.random() * 2) + 2;
+                    return {
+                        type: 'Hidden Geometric (Exponential)',
+                        // LaTeX formula for display
+                        formula: `${base}^{${a} \\cdot ${r}^{n-1}}`,
+                        // Function to calculate the term, returning a MathJax-formatted string
+                        calculate: (n) => `${base}^{${a * Math.pow(r, n - 1)}}`,
+                        // Function to calculate the numerical value
+                        calculateNumerical: (n) => Math.pow(base, a * Math.pow(r, n - 1)),
+                        // Description of the pattern
+                        pattern: `the number in the exponent follows a geometric pattern with common ratio ${r}`,
+                        // LaTeX rule for the general term
+                        rule: `t = ${base}^{${a} \\cdot ${r}^{n-1}}`,
+                        // LaTeX test calculation for a given 'n'
+                        testCalculation: (n) => `${base}^{${a} \\times ${r}^{(${n})-1}} = ${base}^{${a * Math.pow(r, n - 1)}}`,
+                        isHidden: true
+                    };
+                case 'fraction':
+                    // Hidden Geometric (Fraction) type: (geometric_sequence) / (linear_function)
+                    // Coefficients for the linear denominator (cx + d)
+                    const c_frac = Math.floor(Math.random() * 3) + 1; // 'c' from 1 to 3
+                    let d_frac = Math.floor(Math.random() * 11) - 5; // 'd' from -5 to 5
+
+                    // Ensure the denominator is not zero for small 'n' values (up to n=4, typically displayed in question)
+                    while (c_frac * 1 + d_frac === 0 || c_frac * 2 + d_frac === 0 || c_frac * 3 + d_frac === 0 || c_frac * 4 + d_frac === 0) {
+                        d_frac = Math.floor(Math.random() * 11) - 5;
+                    }
+
+                    return {
+                        type: 'Hidden Geometric (Fraction)',
+                        // LaTeX formula for display
+                        formula: `\\frac{${a} \\cdot ${r}^{n-1}}{${c_frac}n ${d_frac >= 0 ? '+' : ''} ${d_frac}}`,
+                        // Function to calculate the term, returning a MathJax-formatted string
+                        calculate: (n) => `\\frac{${a * Math.pow(r, n - 1)}}{${c_frac * n + d_frac}}`,
+                        // Function to calculate the numerical value
+                        calculateNumerical: (n) => (a * Math.pow(r, n - 1)) / (c_frac * n + d_frac),
+                        // Description of the pattern
+                        pattern: `the numerator follows a geometric pattern with common ratio ${r} and the denominator increases by ${c_frac}`,
+                        // LaTeX rule for the general term
+                        rule: `t = \\frac{${a} \\cdot ${r}^{n-1}}{${c_frac}n ${d_frac >= 0 ? '+' : ''} ${d_frac}}`,
+                        // LaTeX test calculation for a given 'n'
+                        testCalculation: (n) => `\\frac{${a} \\times ${r}^{(${n})-1}}{${c_frac}(${n}) ${d_frac >= 0 ? '+' : ''} ${d_frac}} = \\frac{${a * Math.pow(r, n - 1)}}{${c_frac * n + d_frac}}`,
+                        isHidden: true
+                    };
+            }
+        }
+
+        function generateSequence(type) {
+            switch(type) {
+                case 'linear': return generateLinear();
+                case 'hiddenLinear': return generateHiddenLinear();
+                case 'quadratic': return generateQuadratic();
+                case 'hiddenQuadratic': return generateHiddenQuadratic();
+                case 'geometric': return generateGeometric();
+                case 'hiddenGeometric': return generateHiddenGeometric();
+            }
+        }
+
+        function generateQuestion() {
+            const selectedTypes = getSelectedTypes();
+            
+            if (selectedTypes.length === 0) {
+                alert('Please select at least one sequence type.');
+                return;
+            }
+
+            const randomType = selectedTypes[Math.floor(Math.random() * selectedTypes.length)];
+            currentSequence = generateSequence(randomType);
+            
+            document.getElementById('noSelection').classList.add('hidden');
+            document.getElementById('questionSection').classList.remove('hidden');
+            document.getElementById('solutionSection').classList.add('hidden');
+            
+            solutionVisible = false;
+            
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+    const values = [];
+    for (let n = 1; n <= 4; n++) {
+        values.push(currentSequence.calculate(n));
+    }
+
+    const rows = values.map((val, i) =>
+        `<tr><td>${i + 1}</td><td>\\(${val}\\)</td></tr>`
+    ).join('');
+
+    const tableHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>\\(n\\)</th>
+                    <th>\\(t\\)</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rows}
+            </tbody>
+        </table>
+    `;
+
+    document.getElementById('questionTable').innerHTML = tableHTML;
+    MathJax.typeset();  // Refresh MathJax rendering
+}
+
+function displaySolution() {
+    const values = [];
+    for (let n = 1; n <= 7; n++) {
+        values.push(currentSequence.calculate(n));
+    }
+
+    const rows = values.map((val, i) =>
+        `<tr><td>${i + 1}</td><td>\\(${val}\\)</td></tr>`
+    ).join('');
+
+    const testN = 3;
+    const verifyN = 6;
+
+    const solutionHTML = `
+        <h4>Completed table with predictions</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>\\(n\\)</th>
+                    <th>\\(t\\)</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rows}
+            </tbody>
+        </table>
+
+        <h4>Description of pattern</h4>
+        <p>${currentSequence.pattern}</p>
+
+        <h4>General Rule</h4>
+        <p>\\(${currentSequence.rule}\\)</p>
+
+        <h4>Test</h4>
+        <p>Use a value of <span class="math">n</span> that was given in the question.</p>
+        <p>I will test for \\(n = ${testN}\\):</p>
+        <p>\\(${currentSequence.testCalculation(testN)}\\)</p>
+        <p>which matches the value given in the table.</p>
+
+        <h4>Verify</h4>
+        <p>Use a value that has been predicted.</p>
+        <p>I will verify with \\(n = ${verifyN}\\):</p>
+        <p>\\(${currentSequence.testCalculation(verifyN)}\\)</p>
+        <p>which matches the value predicted by the pattern.</p>
+    `;
+
+    document.getElementById('solutionContent').innerHTML = solutionHTML;
+    MathJax.typeset();  // Refresh MathJax rendering
+}
+
+
+        function showSolution() {
+            if (!currentSequence) {
+                alert('Please generate a question first.');
+                return;
+            }
+
+            document.getElementById('solutionSection').classList.remove('hidden');
+            solutionVisible = true;
+            
+            displaySolution();
+        }
+
+        
+
+        function printQuestion() {
+            if (!currentSequence) {
+                alert('Please generate a question first.');
+                return;
+            }
+            
+            document.body.classList.add('print-question-only');
+            window.print();
+            document.body.classList.remove('print-question-only');
+        }
+
+        function printSolution() {
+            if (!currentSequence) {
+                alert('Please generate a question first.');
+                return;
+            }
+            
+            if (!solutionVisible) {
+                showSolution();
+            }
+            
+            document.body.classList.add('print-solution-only');
+            window.print();
+            document.body.classList.remove('print-solution-only');
+        }
+
+        // Initialize checkboxes
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxItems = document.querySelectorAll('.checkbox-item');
+            checkboxItems.forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                if (checkbox.checked) {
+                    item.classList.add('checked');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
